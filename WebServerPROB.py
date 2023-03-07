@@ -8,8 +8,7 @@ from socket import *
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # Fill in start
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+
 # Fill in end 
 
 # Server should be up and running and listening to the incoming connections
