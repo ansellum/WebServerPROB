@@ -43,13 +43,13 @@ while True:
 		f = open(filename[1:])
 
 		# Store the entire content of the requested file in a temporary buffer
-		outputdata = #Fill in start         #Fill in end
+		outputdata = f
 
 		# Send the HTTP response header line to the connection socket
 		# Fill in start
-        connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
+		connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
 		connectionSocket.send("\r\n".encode())
-        # Fill in end
+		# Fill in end
  
 		# Send the content of the requested file to the connection socket
 		for i in range(0, len(outputdata)):  
@@ -63,12 +63,12 @@ while True:
 		# Send HTTP response message for file not found
 		# Fill in start
 		connectionSocket.send("404 Not Found".encode())
-        # Fill in end
+		# Fill in end
         
 		# Close the client connection socket
 		# Fill in start
 		connectionSocket.close()
-        # Fill in end
+		# Fill in end
 
 serverSocket.close()  
 
