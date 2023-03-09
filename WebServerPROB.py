@@ -1,6 +1,5 @@
 # Import socket module
-from socket import *    
-import base64
+from socket import *
 
 # Create a TCP server socket
 #(AF_INET is used for IPv4 protocols)
