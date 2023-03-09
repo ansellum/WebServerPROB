@@ -1,13 +1,12 @@
 # Import socket module
 from socket import *
-
+	
 # Create a TCP server socket
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # define local host & port to connect to
 HOST = "127.0.0.1"
 PORT = 8888
-
 # start socket server
 serverSocket.bind((HOST, PORT))
 serverSocket.listen()
@@ -17,7 +16,7 @@ while True:
 	print('Ready to serve...')
 	
 	# Set up a new connection from the client
-	client_sock, client_addr = serverSocket.accept() # lots of documentation says this; dont understand myself but keeping for now
+	client_sock, client_addr = serverSocket.accept()
 	
 	try:
 		# Receives the request message (of max size 4096) from the client (& decodes into string)
@@ -44,6 +43,7 @@ while True:
 		proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
 		s.sendall(proxy_request.encode())
 
+		# This is where the cache implementation will take place. Most likely will replace entire while loop
 		# Receive destination server response and send it to client
 		while True:
 			# receive data from web server
