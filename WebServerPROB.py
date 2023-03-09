@@ -32,7 +32,7 @@ while True:
 	# the except clause is executed
 	try:
 		# Receives the request message (of max size 4096) from the client (& decodes into string)
-		message = connectionSocket.recv(4096).decode('utf-8')
+		message = connectionSocket.recv(4096).decode('utf-8') # Custom Code
 
 		# Extract the path of the requested object from the message
 		# The path is the second part of HTTP header, identified by [1]
@@ -43,12 +43,11 @@ while True:
 		f = open(filename[1:])
 
 		# Store the entire content of the requested file in a temporary buffer
-		outputdata = f
+		outputdata = f.read() # Custom Code
 
 		# Send the HTTP response header line to the connection socket
 		# Fill in start
-		connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
-		connectionSocket.send("\r\n".encode())
+		connectionSocket.send("HTTP/1.1 200 OK\n".encode())
 		# Fill in end
  
 		# Send the content of the requested file to the connection socket
