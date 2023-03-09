@@ -33,16 +33,14 @@ while True:
 	try:
 		# Receives the request message (of max size 4096) from the client (& decodes into string)
 		message = connectionSocket.recv(4096).decode() # Custom Code
-		print(message)
+
+		# message looks like 
+		# 	GET /localhost:6789/helloworld.html HTTP/1.1
+		# 	...
+		request = message.split()[1]		# /localhost:6789/helloworld.html
 		
-		# Extract the path of the requested object from the message
-		# The path is the second part of HTTP header, identified by [1]
-		# filename = message.split()[1]
-
-		# Because the extracted path of the HTTP request includes 
-		# a character '\', we read the path from the second character 
-		#f = open(filename[1:], 'rb')
-
+		serverAddr = request.split('/')[1] 	# localhost:6789
+		f = request.split('/')[2]			# helloworld.html
 
 		# Send the HTTP response header line to the connection socket
 		# Fill in start
