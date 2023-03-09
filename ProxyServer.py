@@ -7,8 +7,6 @@ from socket import *
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
-# Fill in start
-
 # define local host & port to connect to
 HOST = "127.0.0.1"
 PORT = 8888
@@ -16,8 +14,6 @@ PORT = 8888
 # start socket server
 serverSocket.bind((HOST, PORT))
 serverSocket.listen()
-
-# Fill in end 
 
 # Server should be up and running and listening to the incoming connections
 while True:
@@ -37,18 +33,20 @@ while True:
 		# message looks like 
 		# 	GET /localhost:6789/helloworld.html HTTP/1.1
 		# 	...
-		request = message.split()[1]			# /localhost:6789/helloworld.html
+		client_request = message.split()[1]				# /localhost:6789/helloworld.html
 
-		destination = request.split('/')[1] 	# localhost:6789
-		dest_addr = destination.split(':')[0]	# localhost
-		dest_port = destination.split(':')[1]	# 6789
+		destination = client_request.split('/')[1] 		# localhost:6789
+		filename 	= client_request.split('/')[2] 		# helloworld.html
+		dest_addr 	= destination.split(':')[0]			# localhost
+		dest_port 	= int(destination.split(':')[1])	# 6789
 
 		# Connect to the destination server
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+		s = socket(AF_INET, SOCK_STREAM) 
 		s.connect((dest_addr, dest_port))
  
 		# Send the content of the requested file to destination server
-		s.sendall(request)
+		proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
+		s.sendall(proxy_request.encode())
 
 		# Receive destination server response and send it to client
 		while True:
@@ -56,8 +54,8 @@ while True:
 			data = s.recv(4096)
 
 			# Keep sending until no more data
-			if (len(data) > 0):
-				client_sock.send(data) # send to browser/client
+			if len(data) > 0:
+				client_sock.sendall(data) # send to client
 			else:
 				break
 		
@@ -67,7 +65,7 @@ while True:
 	except IOError:
 		# Send HTTP response message for file not found
 		# Fill in start
-		client_sock.send("404 Not Found".encode())
+		client_sock.send("HTTP/1.1 404 Not Found".encode())
 		# Fill in end
         
 		# Close the client connection socket
