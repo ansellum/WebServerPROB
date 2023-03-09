@@ -41,7 +41,7 @@ while True:
 
 		# Because the extracted path of the HTTP request includes 
 		# a character '\', we read the path from the second character 
-		f = open(filename[1:])
+		f = open(filename[1:], 'rb')
 
 		# Store the entire content of the requested file in a temporary buffer
 		outputdata = f.read() # Custom Code 
@@ -53,8 +53,7 @@ while True:
 		# Fill in end
  
 		# Send the content of the requested file to the connection socket
-		for i in range(0, len(outputdata)):  
-			connectionSocket.send(outputdata[i].encode())
+		connectionSocket.sendall(outputdata)
 		connectionSocket.send("\r\n".encode())
 		
 		# Close the client connection socket
