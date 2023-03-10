@@ -59,6 +59,7 @@ while True:
 
 		# file is not in cache, send request to destination server
 		if requested_file == None:
+			print("Connecting to web server")
 
 			requested_file = b''
 
