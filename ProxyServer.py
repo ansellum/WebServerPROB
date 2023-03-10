@@ -4,12 +4,12 @@ from socket import *
 def fetch_from_cache(filename):
 	try:
 		# Check if file is in cache
-		f = open('cache' + filename)
+		f = open('cache' + filename, 'rb')
 		content = f.read()
 		f.close()
 		# If we have it, let's send it
 		print("Found " + filename + " in cache")
-		return content.encode()
+		return content
 	except IOError:
 		print(filename + " not in cache")
 		return None
