@@ -1,6 +1,25 @@
 # Import socket module
 from socket import *
-	
+
+def fetch_from_cache(filename):
+	try:
+		# Check if file is in cache
+		f = open('cache' + filename)
+		content = f.read()
+		f.close()
+		# If we have it, let's send it
+		print("Found " + filename " in cache")
+		return content
+	except IOError:
+		print(filename + " not in cache")
+		return None
+
+def save_in_cache(filename, content):
+	print("Saving " + filename + " in cache")
+	cached_file = open('cache' + filename, 'w')
+	cached_file.write(content)
+	cached_file.close()
+
 # Create a TCP server socket
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
@@ -34,26 +53,48 @@ while True:
 		dest_addr 	= destination.split(':')[0]			# localhost
 		dest_port 	= int(destination.split(':')[1])	# 6789
 
-		# Connect to the destination server
-		s = socket(AF_INET, SOCK_STREAM) 
-		s.connect((dest_addr, dest_port))
+		# This is where the cache implementation will take place
+		# check cache for file before sending request to destination server
+		requested_file = fetch_from_cache(filename)
+
+		if requested_file:
+			# Send the HTTP response header line to the connection socket
+			client_sock.send("HTTP/1.1 200 OK\r\n".encode())
+			client_sock.send("\r\n".encode())
+
+			# Send the content of the requested file to the connection socket
+			client_sock.sendall(requested_file)
+			client_sock.send("\r\n".encode())
+		else:
+			# Connect to the destination server
+			s = socket(AF_INET, SOCK_STREAM) 
+			s.connect((dest_addr, dest_port))
  
-		# Send the content of the requested file to destination server
-		# Proxy request should look like this: GET /<filename> HTTP/1.1\r\nHost:localhost:6789\r\n\r\n
-		proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
-		s.sendall(proxy_request.encode())
+			# Send the content of the requested file to destination server
+			# Proxy request should look like this: GET /<filename> HTTP/1.1\r\nHost:localhost:6789\r\n\r\n
+			proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
+			s.sendall(proxy_request.encode())
 
-		# This is where the cache implementation will take place. Most likely will replace entire while loop
-		# Receive destination server response and send it to client
-		while True:
-			# receive data from web server
-			data = s.recv(4096)
+			# Receive destination server response and send it to client
+			while True:
+				try:
+					# receive data from web server
+					data = s.recv(4096)
 
-			# Keep sending until no more data
-			if len(data) > 0:
-				client_sock.sendall(data) # send to client
-			else:
-				break
+					# Keep sending until no more data
+					# Send the HTTP response header line to the connection socket
+					client_sock.send("HTTP/1.1 200 OK\r\n".encode())
+					client_sock.send("\r\n".encode())
+
+					# Send the content of the requested file to the connection socket
+					client_sock.sendall(data) # send to client
+					client_sock.send("\r\n".encode())
+
+					# cache the file from the server
+					save_in_cache(filename, data)
+				except IOError:
+					#file not found from web server or cache, jump to outer error handling block
+					raise IOError
 		
 		# Close the client connection socket
 		client_sock.close()
