@@ -77,6 +77,7 @@ while True:
 				if len(data) > 0:
 					requested_file += data
 				else:
+					save_in_cache(filename, requested_file)
 					break
 
 		# Send the HTTP response header line to the connection socket
