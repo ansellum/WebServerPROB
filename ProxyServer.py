@@ -4,7 +4,7 @@ from socket import *
 def fetch_from_cache(filename):
 	try:
 		# Check if file is in cache
-		f = open('cache' + filename, 'rb')
+		f = open('[cache]' + filename, 'rb')
 		content = f.read()
 		f.close()
 		# If we have it, let's send it
@@ -16,7 +16,7 @@ def fetch_from_cache(filename):
 
 def save_in_cache(filename, content):
 	print("Saving " + filename + " in cache")
-	cached_file = open('cache' + filename, 'wb')
+	cached_file = open('[cache]' + filename, 'wb')
 	cached_file.write(content)
 	cached_file.close()
 
@@ -41,10 +41,8 @@ while True:
 		# Receives the request message (of max size 4096) from the client (& decodes into string)
 		message = client_sock.recv(4096).decode() # Custom Code
 
-		# message looks like 
-		# 	GET /localhost:6789/helloworld.html HTTP/1.1
-		# 	Host: localhost:8888
-		#	...
+		# Parse necessary information
+		# message = GET /localhost:6789/helloworld.html HTTP/1.1 ...
 		client_request = message.split()[1]				# /localhost:6789/helloworld.html
 
 		destination = client_request.split('/')[1] 		# localhost:6789
@@ -53,7 +51,6 @@ while True:
 		dest_addr 	= destination.split(':')[0]			# localhost
 		dest_port 	= int(destination.split(':')[1])	# 6789
 
-		# This is where the cache implementation will take place
 		# check cache for file before sending request to destination server
 		requested_file = fetch_from_cache(filename)
 
@@ -68,7 +65,6 @@ while True:
 			s.connect((dest_addr, dest_port))
  
 			# Send the content of the requested file to destination server
-			# Proxy request should look like this: GET /<filename> HTTP/1.1\r\nHost:localhost:6789\r\n\r\n
 			proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
 			s.sendall(proxy_request.encode())
 
