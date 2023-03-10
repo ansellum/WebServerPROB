@@ -9,14 +9,14 @@ def fetch_from_cache(filename):
 		f.close()
 		# If we have it, let's send it
 		print("Found " + filename + " in cache")
-		return content
+		return content.encode()
 	except IOError:
 		print(filename + " not in cache")
 		return None
 
 def save_in_cache(filename, content):
 	print("Saving " + filename + " in cache")
-	cached_file = open('cache' + filename, 'w')
+	cached_file = open('cache' + filename, 'wb')
 	cached_file.write(content)
 	cached_file.close()
 
@@ -59,6 +59,9 @@ while True:
 
 		# file is not in cache, send request to destination server
 		if requested_file == None:
+
+			requested_file = b''
+
 			# Connect to the destination server
 			s = socket(AF_INET, SOCK_STREAM) 
 			s.connect((dest_addr, dest_port))
@@ -82,11 +85,9 @@ while True:
 
 		# Send the HTTP response header line to the connection socket
 		client_sock.send("HTTP/1.1 200 OK\r\n".encode())
-		client_sock.send("\r\n".encode())
 
 		# Send the content of the requested file to the connection socket
 		client_sock.sendall(requested_file)
-		client_sock.send("\r\n".encode())
 		
 		# Close the client connection socket
 		client_sock.close()
