@@ -8,7 +8,7 @@ def fetch_from_cache(filename):
 		content = f.read()
 		f.close()
 		# If we have it, let's send it
-		print("Found " + filename " in cache")
+		print("Found " + filename + " in cache")
 		return content
 	except IOError:
 		print(filename + " not in cache")
@@ -57,15 +57,8 @@ while True:
 		# check cache for file before sending request to destination server
 		requested_file = fetch_from_cache(filename)
 
-		if requested_file:
-			# Send the HTTP response header line to the connection socket
-			client_sock.send("HTTP/1.1 200 OK\r\n".encode())
-			client_sock.send("\r\n".encode())
-
-			# Send the content of the requested file to the connection socket
-			client_sock.sendall(requested_file)
-			client_sock.send("\r\n".encode())
-		else:
+		# file is not in cache, send request to destination server
+		if requested_file == None:
 			# Connect to the destination server
 			s = socket(AF_INET, SOCK_STREAM) 
 			s.connect((dest_addr, dest_port))
@@ -77,24 +70,22 @@ while True:
 
 			# Receive destination server response and send it to client
 			while True:
-				try:
-					# receive data from web server
-					data = s.recv(4096)
+				# receive data from web server
+				data = s.recv(4096)
 
-					# Keep sending until no more data
-					# Send the HTTP response header line to the connection socket
-					client_sock.send("HTTP/1.1 200 OK\r\n".encode())
-					client_sock.send("\r\n".encode())
+				# Keep sending until no more data
+				if len(data) > 0:
+					requested_file += data
+				else:
+					break
 
-					# Send the content of the requested file to the connection socket
-					client_sock.sendall(data) # send to client
-					client_sock.send("\r\n".encode())
+		# Send the HTTP response header line to the connection socket
+		client_sock.send("HTTP/1.1 200 OK\r\n".encode())
+		client_sock.send("\r\n".encode())
 
-					# cache the file from the server
-					save_in_cache(filename, data)
-				except IOError:
-					#file not found from web server or cache, jump to outer error handling block
-					raise IOError
+		# Send the content of the requested file to the connection socket
+		client_sock.sendall(requested_file)
+		client_sock.send("\r\n".encode())
 		
 		# Close the client connection socket
 		client_sock.close()
