@@ -5,7 +5,7 @@ from socket import *
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # define local host & port to connect to
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 6789
 
 # start socket server

@@ -24,7 +24,7 @@ def save_in_cache(filename, content):
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # define local host & port to connect to
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 8888
 # start socket server
 serverSocket.bind((HOST, PORT))
