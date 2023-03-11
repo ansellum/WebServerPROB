@@ -4,7 +4,7 @@ from socket import *
 def fetch_from_cache(filename):
 	try:
 		# Check if file is in cache
-		f = open('[cache]' + filename, 'rb')
+		f = open(filename + '.cache', 'rb')
 		content = f.read()
 		f.close()
 		# If we have it, let's send it
@@ -16,7 +16,7 @@ def fetch_from_cache(filename):
 
 def save_in_cache(filename, content):
 	print("Saving " + filename + " in cache")
-	cached_file = open('[cache]' + filename, 'wb')
+	cached_file = open(filename + '.cache', 'wb')
 	cached_file.write(content)
 	cached_file.close()
 
