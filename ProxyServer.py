@@ -89,9 +89,9 @@ while True:
 		# Close the client connection socket
 		client_sock.close()
 
-	except IOError:
+	except (IOError, IndexError):
 		# Send HTTP response message for file not found
-		client_sock.send("HTTP/1.1 404 Not Found".encode())
+		client_sock.send("HTTP/1.1 404 Not Found\r\n".encode())
         
 		# Close the client connection socket
 		client_sock.close()
