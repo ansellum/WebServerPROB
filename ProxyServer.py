@@ -68,25 +68,25 @@ while True:
 			requested_file = b''
 
 			# Connect to the destination server
-			s = socket(AF_INET, SOCK_STREAM) 
-			s.connect((dest_addr, dest_port))
+			dest_sock = socket(AF_INET, SOCK_STREAM) 
+			dest_sock.connect((dest_addr, dest_port))
  
 			# Send the content of the requested file to destination server
 			proxy_request = "GET " + filename + " HTTP/1.1\r\nHost: " + destination + "\r\nConnection: close\r\n\r\n"
 
-			s.sendall(proxy_request.encode())
+			dest_sock.sendall(proxy_request.encode())
 
 			# Receive destination server response and send it to client
 			while True:
 				# receive data from web server
-				data = s.recv(4096)
+				data = dest_sock.recv(4096)
 
 				# Keep sending until no more data
-				if len(data) > 0:
-					requested_file += data
-				else:
+				if len(data) == 0:
 					save_in_cache(filename, requested_file)
 					break
+
+				requested_file += data
 
 		# Send the HTTP response header line to the connection socket
 		client_sock.send("HTTP/1.1 200 OK\r\n\r\n".encode())
