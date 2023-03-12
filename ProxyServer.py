@@ -87,9 +87,6 @@ while True:
 
 				requested_file += data
 
-		# Send the HTTP response header line to the connection socket
-		client_sock.send("HTTP/1.1 200 OK\r\n\r\n".encode())
-
 		# Send the content of the requested file to the connection socket
 		client_sock.sendall(requested_file)
 		
