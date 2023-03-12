@@ -9,14 +9,14 @@ def fetch_from_cache(filename):
 		content = f.read()
 		f.close()
 		# If we have it, let's send it
-		print("Found " + filename + " in cache")
+		print("Found " + filename.replace('$', ':') + " in cache")
 		return content
 	except IOError:
-		print(filename + " not in cache")
+		print(filename.replace('$', ':') + " not in cache")
 		return None
 
 def save_in_cache(filename, content):
-	print("Saving " + filename + " in cache")
+	print("Saving " + filename.replace('$', ':') + " in cache")
 	cache_name = filename + '.cache'
 	cached_file = open(cache_name.replace('/', '~'), 'wb')
 	cached_file.write(content)
@@ -43,10 +43,9 @@ while True:
 		# Receives the request message
 		message = client_sock.recv(4096).decode()
 
-		# Comment examples: localhost:6789/helloworld.html	|	starmen.net/mother3/screenshots/
+		# Comment examples: GET [/localhost:6789/helloworld.html	| /starmen.net/mother3/screenshots/] HTTP/1.1
 
 		# Parse necessary information
-		# message = GET /localhost:6789/helloworld.html HTTP/1.1 ...
 		client_request = message.split()[1].split('/')		# ['', 'localhost:6789', 'helloworld.html']	|	['', 'starmen.net', 'mother3', 'screenshots', '']
 
 		destination = client_request[1] 					# localhost:6789	|	starmen.net
@@ -59,7 +58,7 @@ while True:
 			dest_port = 80									# 80
 
 		# check cache for file before sending request to destination server
-		requested_file = fetch_from_cache(filename) # encode cache filename 
+		requested_file = fetch_from_cache(destination.replace(':', '$') + filename) # encode cache filename 
 
 		# file is not in cache, send request to destination server
 		if requested_file == None:
@@ -81,9 +80,9 @@ while True:
 				# receive data from web server
 				data = dest_sock.recv(4096)
 
-				# Keep sending until no more data
+				# Break if no more data
 				if len(data) == 0:
-					save_in_cache(filename, requested_file)
+					save_in_cache(destination.replace(':', '$') + filename, requested_file)
 					break
 
 				requested_file += data
@@ -97,7 +96,7 @@ while True:
 		# Close the client connection socket
 		client_sock.close()
 
-	except (IOError, IndexError):
+	except IOError:
 		# Send HTTP response message for file not found
 		client_sock.send("HTTP/1.1 404 Not Found\r\n".encode())
         
