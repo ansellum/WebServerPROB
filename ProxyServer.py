@@ -38,18 +38,23 @@ while True:
 	client_sock, client_addr = serverSocket.accept()
 	
 	try:
-		# Receives the request message (of max size 4096) from the client (& decodes into string)
-		message = client_sock.recv(4096).decode() # Custom Code
+		# Receives the request message
+		message = client_sock.recv(4096).decode()
+
+		# Comment examples: localhost:6789/helloworld.html	|	starmen.net/mother3/screenshots/
 
 		# Parse necessary information
 		# message = GET /localhost:6789/helloworld.html HTTP/1.1 ...
-		client_request = message.split()[1]				# /localhost:6789/helloworld.html
+		client_request = message.split()[1].split('/')		# ['', 'localhost:6789', 'helloworld.html']	|	['', 'starmen.net', 'mother3', 'screenshots', '']
 
-		destination = client_request.split('/')[1] 		# localhost:6789
-		filename 	= client_request.split('/')[2] 		# helloworld.html
+		destination = client_request[1] 					# localhost:6789	|	starmen.net
+		filename = '/' + '/'.join(client_request[2:]) 		# /helloworld.html	|	/mother3/screenshots/
 
-		dest_addr 	= destination.split(':')[0]			# localhost
-		dest_port 	= int(destination.split(':')[1])	# 6789
+		dest_addr 	= destination.split(':')[0]				# localhost			|	starmen.net
+		if ':' in destination:
+			dest_port = int(destination.split(':')[1])		# 6789
+		else:
+			dest_port = 80									# 80
 
 		# check cache for file before sending request to destination server
 		requested_file = fetch_from_cache(filename)
@@ -65,7 +70,8 @@ while True:
 			s.connect((dest_addr, dest_port))
  
 			# Send the content of the requested file to destination server
-			proxy_request = "GET /" + filename + " HTTP/1.1\r\nHost:" + destination + "\r\n\r\n"
+			proxy_request = "GET " + filename + " HTTP/1.1\r\nHost: " + destination + "\r\nConnection: close\r\n\r\n"
+
 			s.sendall(proxy_request.encode())
 
 			# Receive destination server response and send it to client
@@ -81,7 +87,7 @@ while True:
 					break
 
 		# Send the HTTP response header line to the connection socket
-		client_sock.send("HTTP/1.1 200 OK\r\n".encode())
+		client_sock.send("HTTP/1.1 200 OK\r\n\r\n".encode())
 
 		# Send the content of the requested file to the connection socket
 		client_sock.sendall(requested_file)
